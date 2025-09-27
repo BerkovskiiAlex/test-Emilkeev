@@ -1,4 +1,5 @@
 <!-- @format -->
+<!-- @format -->
 
 <script setup>
 import {
@@ -37,7 +38,7 @@ const chartData = computed(() => {
   props.data.forEach((item) => {
     const date = item.date;
     if (!grouped[date]) grouped[date] = 0;
-    grouped[date] += item.quantity;
+    grouped[date] += Number(item.for_pay) || 0;
   });
 
   const labels = Object.keys(grouped).sort();
@@ -47,10 +48,10 @@ const chartData = computed(() => {
     labels,
     datasets: [
       {
-        label: "Количество доходов по дате",
+        label: "Цена для оплаты по дате",
         data: values,
         borderColor: "rgb(75, 192, 192)",
-        tension: 0.2,
+        tension: 0.1,
         fill: false,
       },
     ],
@@ -65,7 +66,7 @@ const chartOptions = {
     },
     title: {
       display: true,
-      text: "График доходов",
+      text: "График цены для оплаты",
     },
   },
 };

@@ -12,7 +12,6 @@ const filters = ref({
   dateTo: "",
   warehouse_name: "",
   supplier_article: "",
-  last_change_date: "",
   priceFrom: "",
   priceTo: "",
   discount_percentFrom: "",
@@ -74,12 +73,6 @@ const filteredData = computed(() => {
           .includes(filters.value.supplier_article.toLowerCase())
       : true;
 
-    const matchesLastChangeDate = filters.value.last_change_date
-      ? item.last_change_date
-          ?.toLowerCase()
-          .includes(filters.value.last_change_date.toLowerCase())
-      : true;
-
     const matchesPriceFrom =
       filters.value.priceFrom !== ""
         ? item.total_price >= filters.value.priceFrom
@@ -112,7 +105,6 @@ const filteredData = computed(() => {
     return (
       matchesWarehouse &&
       matchesArticle &&
-      matchesLastChangeDate &&
       matchesPriceFrom &&
       matchesPriceTo &&
       matchesDiscountPercentFrom &&

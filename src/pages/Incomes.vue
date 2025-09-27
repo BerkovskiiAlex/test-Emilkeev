@@ -2,7 +2,7 @@
 <script setup>
 import { ref, watch, onMounted, computed } from "vue";
 import { useApi } from "../composables/useApi";
-import IncomeChart from "../components/IncomeChart.vue";
+import IncomesChart from "../components/IncomesChart.vue";
 
 const endpoint = "incomes";
 const { data, loading, error, fetchData } = useApi(endpoint);
@@ -167,6 +167,6 @@ function goToPage(page) {
     </div>
   </div>
   <div v-if="filteredData.length" style="margin-bottom: 2rem">
-    <IncomeChart :data="filteredData" />
+    <IncomesChart :data="filteredData" />
   </div>
 </template>
