@@ -258,7 +258,7 @@ function goToPage(page) {
 
     <div v-if="lastPage > 1" style="margin-top: 1rem">
       <button :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
-        ◀ Назад
+        Назад
       </button>
       <span style="margin: 0 1rem">
         Страница {{ currentPage }} из {{ lastPage }}
@@ -267,7 +267,7 @@ function goToPage(page) {
         :disabled="currentPage === lastPage"
         @click="goToPage(currentPage + 1)"
       >
-        Вперёд ▶
+        Вперёд
       </button>
     </div>
   </div>
