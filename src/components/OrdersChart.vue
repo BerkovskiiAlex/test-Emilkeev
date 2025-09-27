@@ -6,22 +6,20 @@ import {
   Title,
   Tooltip,
   Legend,
-  LineElement,
+  BarElement,
   CategoryScale,
   LinearScale,
-  PointElement,
 } from "chart.js";
-import { Line } from "vue-chartjs";
+import { Bar } from "vue-chartjs";
 import { computed } from "vue";
 
 ChartJS.register(
   Title,
   Tooltip,
   Legend,
-  LineElement,
+  BarElement,
   CategoryScale,
-  LinearScale,
-  PointElement
+  LinearScale
 );
 
 const props = defineProps({
@@ -32,26 +30,21 @@ const props = defineProps({
 });
 
 const chartData = computed(() => {
-  const grouped = {};
-
-  props.data.forEach((item) => {
-    const date = item.date;
-    if (!grouped[date]) grouped[date] = 0;
-    grouped[date] += item.quantity;
+  const labels = props.data.map((item, i) => {
+    return `${item.date} #${i + 1}`;
   });
 
-  const labels = Object.keys(grouped).sort();
-  const values = labels.map((date) => grouped[date]);
+  const values = props.data.map((item) => item.total_price);
 
   return {
     labels,
     datasets: [
       {
-        label: "Количество доходов по дате",
+        label: "Цена по дате",
         data: values,
+        backgroundColor: "rgba(75, 192, 192, 0.5)",
         borderColor: "rgb(75, 192, 192)",
-        tension: 0.2,
-        fill: false,
+        borderWidth: 2,
       },
     ],
   };
@@ -65,12 +58,12 @@ const chartOptions = {
     },
     title: {
       display: true,
-      text: "График доходов",
+      text: "График цены",
     },
   },
 };
 </script>
 
 <template>
-  <Line :data="chartData" :options="chartOptions" />
+  <Bar :data="chartData" :options="chartOptions" />
 </template>
