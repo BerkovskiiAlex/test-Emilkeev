@@ -80,16 +80,24 @@ function goToPage(page) {
 
 <template>
   <div>
-    <h1>Incomes</h1>
+    <h1 class="text-xl text-center mb-4">Incomes</h1>
 
-    <div style="margin-bottom: 1rem">
+    <div class="flex justify-center gap-6 text-center mb-4">
       <label>
         Дата от:
-        <input type="date" v-model="filters.dateFrom" />
+        <input
+          type="date"
+          v-model="filters.dateFrom"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
       </label>
       <label>
         Дата до:
-        <input type="date" v-model="filters.dateTo" />
+        <input
+          type="date"
+          v-model="filters.dateTo"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
       </label>
       <label>
         Склад:
@@ -97,6 +105,7 @@ function goToPage(page) {
           type="text"
           v-model="filters.warehouse_name"
           placeholder="Введите склад"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
       <label>
@@ -105,14 +114,15 @@ function goToPage(page) {
           type="text"
           v-model="filters.supplier_article"
           placeholder="Введите артикул"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
     </div>
 
-    <div v-if="loading">Загрузка...</div>
-    <div v-if="error">{{ error.message }}</div>
+    <div v-if="loading" class="text-xl text-center p-8">Загрузка...</div>
+    <div v-if="error" class="text-xl text-center p-8">{{ error.message }}</div>
 
-    <div style="margin-bottom: 1rem">
+    <div class="text-center mb-4">
       <label>
         Показывать по:
         <select v-model="itemsPerPage">
@@ -125,48 +135,61 @@ function goToPage(page) {
       </label>
     </div>
 
-    <table v-if="filteredData.length">
+    <table
+      v-if="filteredData.length"
+      class="min-w-full border-collapse border border-gray-300 mb-4"
+    >
       <thead>
-        <tr>
-          <th>ID</th>
-          <th>Дата</th>
-          <th>Артикул</th>
-          <th>Количество</th>
-          <th>Склад</th>
+        <tr class="bg-gray-100">
+          <th class="border border-gray-300 px-4 py-2 text-left">ID</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Дата</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Артикул</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Количество</th>
+          <th class="border border-gray-300 px-4 py-2 text-left">Склад</th>
         </tr>
       </thead>
       <tbody>
         <tr
           v-for="(item, index) in filteredData"
           :key="item.nm_id + '-' + index"
+          class="even:bg-gray-50 hover:bg-gray-100"
         >
-          <td>{{ item.income_id }}</td>
-          <td>{{ item.date }}</td>
-          <td>{{ item.supplier_article }}</td>
-          <td>{{ item.quantity }}</td>
-          <td>{{ item.warehouse_name }}</td>
+          <td class="border border-gray-300 px-4 py-2">{{ item.income_id }}</td>
+          <td class="border border-gray-300 px-4 py-2">{{ item.date }}</td>
+          <td class="border border-gray-300 px-4 py-2">
+            {{ item.supplier_article }}
+          </td>
+          <td class="border border-gray-300 px-4 py-2">{{ item.quantity }}</td>
+          <td class="border border-gray-300 px-4 py-2">
+            {{ item.warehouse_name }}
+          </td>
         </tr>
       </tbody>
     </table>
 
-    <div v-else-if="!loading && !error">Нет данных</div>
+    <div v-else-if="!loading && !error" class="text-xl text-center p-2">
+      Нет данных
+    </div>
 
-    <div v-if="lastPage > 1" style="margin-top: 1rem">
-      <button :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+    <div v-if="lastPage > 1" class="text-center p-2">
+      <button
+        :disabled="currentPage === 1"
+        @click="goToPage(currentPage - 1)"
+        class="px-2 py-1 mr-4 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+      >
         Назад
       </button>
-      <span style="margin: 0 1rem">
-        Страница {{ currentPage }} из {{ lastPage }}
-      </span>
+      <span class="mx-2"> Страница {{ currentPage }} из {{ lastPage }} </span>
       <button
         :disabled="currentPage === lastPage"
         @click="goToPage(currentPage + 1)"
+        class="px-2 py-1 ml-4 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition"
       >
         Вперёд
       </button>
     </div>
   </div>
-  <div v-if="filteredData.length" style="margin-bottom: 2rem">
+  <div v-if="filteredData.length">
     <IncomesChart :data="filteredData" />
   </div>
 </template>
