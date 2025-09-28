@@ -187,159 +187,184 @@ function goToPage(page) {
 
 <template>
   <div>
-    <h1>Sales</h1>
+    <h1 class="text-xl text-center mb-4">Sales</h1>
 
-    <div style="margin-bottom: 1rem">
-      <label>
+    <div class="flex flex-wrap justify-center items-stretch gap-4 mb-4">
+      <label class="flex flex-col justify-between w-40">
         Дата от:
-        <input type="date" v-model="filters.dateFrom" />
+        <input
+          type="date"
+          v-model="filters.dateFrom"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Дата до:
-        <input type="date" v-model="filters.dateTo" />
+        <input
+          type="date"
+          v-model="filters.dateTo"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Склад:
         <input
           type="text"
           v-model="filters.warehouse_name"
           placeholder="Введите склад"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Страна:
         <input
           type="text"
           v-model="filters.country_name"
           placeholder="Введите страну"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Область/Округ:
         <input
           type="text"
           v-model="filters.oblast_okrug_name"
-          placeholder="Введите область или округ"
+          placeholder="Введите область"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Регион:
         <input
           type="text"
           v-model="filters.region_name"
           placeholder="Введите регион"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Артикул:
         <input
           type="text"
           v-model="filters.supplier_article"
           placeholder="Введите артикул"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Цена от:
         <input
           type="number"
           v-model.number="filters.priceFrom"
           placeholder="мин. цена"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Цена до:
         <input
           type="number"
           v-model.number="filters.priceTo"
           placeholder="макс. цена"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Процент дисконта от:
         <input
           type="number"
           v-model.number="filters.discount_percentFrom"
           placeholder="мин. %"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Процент дисконта до:
         <input
           type="number"
           v-model.number="filters.discount_percentTo"
           placeholder="макс. %"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Скидка постоянного покупателя от:
         <input
           type="number"
           v-model.number="filters.sspFrom"
           placeholder="мин. %"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Скидка постоянного покупателя до:
         <input
           type="number"
           v-model.number="filters.sspTo"
           placeholder="макс. %"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Для оплаты от:
         <input
           type="number"
           v-model.number="filters.for_payFrom"
           placeholder="мин. цена"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Для оплаты до:
         <input
           type="number"
           v-model.number="filters.for_payTo"
           placeholder="макс. цена"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Окончательная цена от:
         <input
           type="number"
           v-model.number="filters.finished_priceFrom"
           placeholder="мин. цена"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Окончательная цена до:
         <input
           type="number"
           v-model.number="filters.finished_priceTo"
           placeholder="макс. цена"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Цена с дисконтом от:
         <input
           type="number"
           v-model.number="filters.price_with_discFrom"
           placeholder="мин. цена"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col justify-between w-40">
         Цена с дисконтом до:
         <input
           type="number"
           v-model.number="filters.price_with_discTo"
           placeholder="макс. цена"
+          class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
     </div>
 
-    <div v-if="loading">Загрузка...</div>
-    <div v-if="error">{{ error.message }}</div>
+    <div v-if="loading" class="text-xl text-center p-8">Загрузка...</div>
+    <div v-if="error" class="text-xl text-center p-8">{{ error.message }}</div>
 
-    <div style="margin-bottom: 1rem">
+    <div class="text-center mb-4">
       <label>
         Показывать по:
         <select v-model="itemsPerPage">
@@ -352,67 +377,114 @@ function goToPage(page) {
       </label>
     </div>
 
-    <table v-if="filteredData.length">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Дата</th>
-          <th>Дата изменения</th>
-          <th>Артикул</th>
-          <th>Склад</th>
-          <th>Страна</th>
-          <th>Область/Округ</th>
-          <th>Регион</th>
-          <th>Цена</th>
-          <th>Процент дисконта</th>
-          <th>Скидка постоянного покупателя</th>
-          <th>Для оплаты</th>
-          <th>Окончательная цена</th>
-          <th>Цена с дисконтом</th>
-        </tr>
-      </thead>
+    <div class="overflow-x-auto w-full">
+      <table
+        v-if="filteredData.length"
+        class="min-w-full border-collapse border border-gray-300 mb-4"
+      >
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="border border-gray-300 px-4 py-2 text-left">ID</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Дата</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">
+              Дата изменения
+            </th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Артикул</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Склад</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Страна</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">
+              Область/Округ
+            </th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Регион</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">Цена</th>
+            <th class="border border-gray-300 px-4 py-2 text-left">
+              Процент дисконта
+            </th>
+            <th class="border border-gray-300 px-4 py-2 text-left">
+              Скидка постоянного покупателя
+            </th>
+            <th class="border border-gray-300 px-4 py-2 text-left">
+              Для оплаты
+            </th>
+            <th class="border border-gray-300 px-4 py-2 text-left">
+              Окончательная цена
+            </th>
+            <th class="border border-gray-300 px-4 py-2 text-left">
+              Цена с дисконтом
+            </th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr
-          v-for="(item, index) in filteredData"
-          :key="item.nm_id + '-' + index"
-        >
-          <td>{{ item.income_id }}</td>
-          <td>{{ item.date }}</td>
-          <td>{{ item.last_change_date }}</td>
-          <td>{{ item.supplier_article }}</td>
-          <td>{{ item.warehouse_name }}</td>
-          <td>{{ item.country_name }}</td>
-          <td>{{ item.oblast_okrug_name }}</td>
-          <td>{{ item.region_name }}</td>
-          <td>{{ item.total_price }}</td>
-          <td>{{ item.discount_percent }}</td>
-          <td>{{ item.spp }}</td>
-          <td>{{ item.for_pay }}</td>
-          <td>{{ item.finished_price }}</td>
-          <td>{{ item.price_with_disc }}</td>
-        </tr>
-      </tbody>
-    </table>
+        <tbody>
+          <tr
+            v-for="(item, index) in filteredData"
+            :key="item.nm_id + '-' + index"
+            class="even:bg-gray-50 hover:bg-gray-100 h-12 text-sm"
+          >
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.income_id }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">{{ item.date }}</td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.last_change_date }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.supplier_article }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.warehouse_name }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.country_name }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.oblast_okrug_name }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.region_name }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.total_price }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.discount_percent }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">{{ item.spp }}</td>
+            <td class="border border-gray-300 px-4 py-2">{{ item.for_pay }}</td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.finished_price }}
+            </td>
+            <td class="border border-gray-300 px-4 py-2">
+              {{ item.price_with_disc }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div v-else-if="!loading && !error">Нет данных</div>
+      <div v-else-if="!loading && !error" class="text-xl text-center p-2">
+        Нет данных
+      </div>
+    </div>
 
-    <div v-if="lastPage > 1" style="margin-top: 1rem">
-      <button :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+    <div v-if="lastPage > 1" class="text-center p-2">
+      <button
+        :disabled="currentPage === 1"
+        @click="goToPage(currentPage - 1)"
+        class="px-2 py-1 mr-4 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+      >
         Назад
       </button>
-      <span style="margin: 0 1rem">
-        Страница {{ currentPage }} из {{ lastPage }}
-      </span>
+      <span class="mx-2"> Страница {{ currentPage }} из {{ lastPage }} </span>
       <button
         :disabled="currentPage === lastPage"
         @click="goToPage(currentPage + 1)"
+        class="px-2 py-1 ml-4 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition"
       >
         Вперёд
       </button>
     </div>
   </div>
-  <div v-if="filteredData.length" style="margin-bottom: 2rem">
+  <div v-if="filteredData.length">
     <SalesChart :data="filteredData" />
   </div>
 </template>

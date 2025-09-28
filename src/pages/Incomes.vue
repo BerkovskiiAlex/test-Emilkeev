@@ -152,7 +152,7 @@ function goToPage(page) {
         <tr
           v-for="(item, index) in filteredData"
           :key="item.nm_id + '-' + index"
-          class="even:bg-gray-50 hover:bg-gray-100 h-12"
+          class="even:bg-gray-50 hover:bg-gray-100 h-12 text-sm"
         >
           <td class="border border-gray-300 px-4 py-2">{{ item.income_id }}</td>
           <td class="border border-gray-300 px-4 py-2">{{ item.date }}</td>

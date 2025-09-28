@@ -51,7 +51,9 @@ const chartData = computed(() => {
         label: "Цена для оплаты по дате",
         data: values,
         borderColor: "rgb(75, 192, 192)",
-        tension: 0.1,
+        backgroundColor: "rgba(75, 192, 192, 0.2)",
+        pointBackgroundColor: "rgb(75, 192, 192)",
+        tension: 0.3,
         fill: false,
       },
     ],
@@ -63,10 +65,63 @@ const chartOptions = {
   plugins: {
     legend: {
       position: "top",
+      labels: {
+        color: "#4B5563",
+        font: {
+          size: 14,
+          family: "'Roboto', sans-serif",
+          weight: "bold",
+        },
+      },
     },
     title: {
       display: true,
       text: "График цены для оплаты",
+      color: "#374151",
+      font: {
+        size: 18,
+        family: "'Roboto', sans-serif",
+        weight: "bold",
+      },
+    },
+    tooltip: {
+      enabled: true,
+      backgroundColor: "rgba(0,0,0,0.7)",
+      titleFont: {
+        family: "'Roboto', sans-serif",
+        size: 14,
+        weight: "bold",
+      },
+      bodyFont: {
+        family: "'Roboto', sans-serif",
+        size: 12,
+      },
+    },
+  },
+  scales: {
+    x: {
+      ticks: {
+        color: "#6B7280",
+        font: {
+          family: "'Roboto', sans-serif",
+          size: 12,
+        },
+      },
+      grid: {
+        color: "rgba(0,0,0,0.2)",
+      },
+    },
+    y: {
+      ticks: {
+        color: "#6B7280",
+        font: {
+          family: "'Roboto', sans-serif",
+          size: 12,
+        },
+      },
+      grid: {
+        color: "rgba(0,0,0,0.2)",
+      },
     },
   },
 };
