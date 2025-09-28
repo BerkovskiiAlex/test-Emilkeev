@@ -65,7 +65,7 @@ const chartOptions = {
     legend: {
       position: "top",
       labels: {
-        color: "#4B5563", // цвет текста легенды (темно-серый)
+        color: "#4B5563",
         font: {
           size: 14,
           family: "'Roboto', sans-serif",
@@ -76,7 +76,7 @@ const chartOptions = {
     title: {
       display: true,
       text: "График доходов",
-      color: "#374151", // цвет заголовка
+      color: "#374151",
       font: {
         size: 18,
         family: "'Roboto', sans-serif",
@@ -100,26 +100,26 @@ const chartOptions = {
   scales: {
     x: {
       ticks: {
-        color: "#6B7280", // цвет текста по оси X
+        color: "#6B7280",
         font: {
           family: "'Roboto', sans-serif",
           size: 12,
         },
       },
       grid: {
-        color: "rgba(0,0,0,0.2)", // цвет сетки по оси X
+        color: "rgba(0,0,0,0.2)",
       },
     },
     y: {
       ticks: {
-        color: "#6B7280", // цвет текста по оси Y
+        color: "#6B7280",
         font: {
           family: "'Roboto', sans-serif",
           size: 12,
         },
       },
       grid: {
-        color: "rgba(0,0,0,0.2)", // цвет сетки по оси Y
+        color: "rgba(0,0,0,0.2)",
       },
     },
   },

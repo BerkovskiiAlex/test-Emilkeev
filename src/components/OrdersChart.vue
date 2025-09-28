@@ -45,6 +45,7 @@ const chartData = computed(() => {
         backgroundColor: "rgba(75, 192, 192, 0.5)",
         borderColor: "rgb(75, 192, 192)",
         borderWidth: 2,
+        borderRadius: 4,
       },
     ],
   };
@@ -55,10 +56,62 @@ const chartOptions = {
   plugins: {
     legend: {
       position: "top",
+      labels: {
+        color: "#4B5563",
+        font: {
+          size: 14,
+          family: "'Roboto', sans-serif",
+          weight: "bold",
+        },
+      },
     },
     title: {
       display: true,
-      text: "График цены",
+      text: "График цены заказов",
+      color: "#374151",
+      font: {
+        size: 18,
+        family: "'Roboto', sans-serif",
+        weight: "bold",
+      },
+    },
+    tooltip: {
+      backgroundColor: "rgba(0,0,0,0.7)",
+      titleFont: {
+        family: "'Roboto', sans-serif",
+        size: 14,
+        weight: "bold",
+      },
+      bodyFont: {
+        family: "'Roboto', sans-serif",
+        size: 12,
+      },
+    },
+  },
+  scales: {
+    x: {
+      ticks: {
+        color: "#6B7280",
+        font: {
+          family: "'Roboto', sans-serif",
+          size: 12,
+        },
+      },
+      grid: {
+        color: "rgba(0,0,0,0.2)",
+      },
+    },
+    y: {
+      ticks: {
+        color: "#6B7280",
+        font: {
+          family: "'Roboto', sans-serif",
+          size: 12,
+        },
+      },
+      grid: {
+        color: "rgba(0,0,0,0.2)",
+      },
     },
   },
 };
