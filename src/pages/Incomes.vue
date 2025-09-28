@@ -83,7 +83,7 @@ function goToPage(page) {
     <h1 class="text-xl text-center mb-4">Incomes</h1>
 
     <div class="flex justify-center gap-6 text-center mb-4">
-      <label>
+      <label class="flex flex-col w-40">
         Дата от:
         <input
           type="date"
@@ -91,7 +91,7 @@ function goToPage(page) {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col w-40">
         Дата до:
         <input
           type="date"
@@ -99,7 +99,7 @@ function goToPage(page) {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col w-40">
         Склад:
         <input
           type="text"
@@ -108,7 +108,7 @@ function goToPage(page) {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-      <label>
+      <label class="flex flex-col w-40">
         Артикул:
         <input
           type="text"
