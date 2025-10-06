@@ -6,6 +6,13 @@
       class="flex text-2xl justify-evenly items-center bg-gray-100 p-3 rounded shadow mb-4"
     >
       <router-link
+        to="/home"
+        class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded"
+        active-class="text-blue-700 font-semibold border-b-2 border-blue-700"
+      >
+        Home
+      </router-link>
+      <router-link
         to="/incomes"
         class="text-gray-700 hover:text-blue-600 px-3 py-2 rounded"
         active-class="text-blue-700 font-semibold border-b-2 border-blue-700"
@@ -34,6 +41,6 @@
         Stocks
       </router-link>
     </nav>
-    <router-view class="mt-6" />
+    <router-view />
   </div>
 </template>
