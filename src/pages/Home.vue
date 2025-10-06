@@ -1,6 +1,5 @@
 <!-- @format -->
 
-<!-- Home.vue -->
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { useApi } from "../composables/useApi";
@@ -9,10 +8,6 @@ import HomeChart from "../components/HomeChart.vue";
 const endpoint = "orders";
 const { data, loading, error, fetchData } = useApi(endpoint);
 
-watch(data, () => {
-  console.log(data.value);
-});
-
 const filters = ref({
   dateFrom: "",
   dateTo: "",
@@ -20,6 +15,8 @@ const filters = ref({
 
 const currentPage = ref(1);
 const lastPage = ref(1);
+
+const comparePeriod = ref("day");
 
 function loadData(page = 1) {
   currentPage.value = page;
@@ -50,18 +47,33 @@ watch(
   }
 );
 
-// Группировка по датам и артикулам
-const groupedByDate = computed(() => {
+function getPeriodKey(dateStr, period) {
+  const date = new Date(dateStr);
+  if (period === "day") {
+    return dateStr.slice(0, 10);
+  } else if (period === "week") {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date - firstDayOfYear) / (24 * 60 * 60 * 1000);
+    const weekNumber = Math.ceil(
+      (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
+    );
+    return `${date.getFullYear()}-W${weekNumber}`;
+  } else if (period === "month") {
+    return dateStr.slice(0, 7);
+  }
+}
+
+const groupedByPeriod = computed(() => {
   const result = {};
   if (!data.value?.data) return [];
 
   for (const order of data.value.data) {
-    const date = order.date.slice(0, 10);
+    const periodKey = getPeriodKey(order.date, comparePeriod.value);
     const nmId = order.nm_id;
 
-    if (!result[date]) {
-      result[date] = {
-        date,
+    if (!result[periodKey]) {
+      result[periodKey] = {
+        period: periodKey,
         totalSales: 0,
         totalRevenue: 0,
         cancelCount: 0,
@@ -71,7 +83,7 @@ const groupedByDate = computed(() => {
       };
     }
 
-    const stats = result[date];
+    const stats = result[periodKey];
     stats.totalSales += 1;
     stats.totalRevenue += parseFloat(order.total_price || 0);
     if (order.is_cancel) stats.cancelCount += 1;
@@ -101,20 +113,19 @@ const groupedByDate = computed(() => {
     }
   }
 
-  return Object.values(result).sort((a, b) => a.date.localeCompare(b.date));
+  return Object.values(result).sort((a, b) => a.period.localeCompare(b.period));
 });
 
-// Индексы выбранных дат
-const selectedDateIndex = ref(0);
-const compareToIndex = ref(1);
+const selectedPeriodIndex = ref(1);
+const compareToIndex = ref(0);
 
-// Список всех дат для селектора
-const allDates = computed(() => groupedByDate.value.map((item) => item.date));
+const allPeriods = computed(() =>
+  groupedByPeriod.value.map((item) => item.period)
+);
 
-// Функция сравнения двух дат по выбранному полю
 const getTopChangesByField = (field) => {
-  const current = groupedByDate.value[selectedDateIndex.value];
-  const previous = groupedByDate.value[compareToIndex.value];
+  const current = groupedByPeriod.value[selectedPeriodIndex.value];
+  const previous = groupedByPeriod.value[compareToIndex.value];
 
   if (!current || !previous) return [];
 
@@ -143,9 +154,7 @@ const getTopChangesByField = (field) => {
     });
   }
 
-  return changes
-    .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
-    .slice(0, 5);
+  return changes.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
 };
 
 function goToPage(page) {
@@ -164,8 +173,7 @@ function goToPage(page) {
     <div v-if="loading" class="text-center">Загрузка...</div>
     <div v-if="error" class="text-center text-red-500">{{ error.message }}</div>
 
-    <!-- Селекторы выбора дат -->
-    <div>
+    <div class="mb-4 flex gap-4 items-center justify-center">
       <label class="flex flex-col w-40">
         Дата от:
         <input
@@ -182,75 +190,50 @@ function goToPage(page) {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
+
+      <label class="flex flex-col w-48">
+        Период сравнения:
+        <select
+          v-model="comparePeriod"
+          class="border border-gray-300 rounded px-2 py-1"
+        >
+          <option value="day">День</option>
+          <option value="week">Неделя</option>
+          <option value="month">Месяц</option>
+        </select>
+      </label>
     </div>
+
     <div
-      v-if="allDates.length"
+      v-if="allPeriods.length"
       class="mb-6 flex flex-wrap gap-6 justify-center"
     >
       <div>
-        <label class="block text-sm font-medium mb-1">Текущая дата</label>
-        <select v-model="selectedDateIndex" class="border rounded px-2 py-1">
-          <option v-for="(date, index) in allDates" :key="date" :value="index">
-            {{ date }}
+        <label class="block text-sm font-medium mb-1">Текущий период</label>
+        <select v-model="selectedPeriodIndex" class="border rounded px-2 py-1">
+          <option
+            v-for="(period, index) in allPeriods"
+            :key="period"
+            :value="index"
+          >
+            {{ period }}
           </option>
         </select>
       </div>
       <div>
         <label class="block text-sm font-medium mb-1">Сравнить с</label>
         <select v-model="compareToIndex" class="border rounded px-2 py-1">
-          <option v-for="(date, index) in allDates" :key="date" :value="index">
-            {{ date }}
+          <option
+            v-for="(period, index) in allPeriods"
+            :key="period"
+            :value="index"
+          >
+            {{ period }}
           </option>
         </select>
       </div>
     </div>
 
-    <!-- Графики -->
-    <div
-      v-if="groupedByDate.length"
-      class="grid grid-cols-1 md:grid-cols-2 gap-8"
-    >
-      <HomeChart
-        title="Количество продаж"
-        :labels="groupedByDate.map((item) => item.date)"
-        :values="groupedByDate.map((item) => item.totalSales)"
-        :topChanges="getTopChangesByField('totalSales')"
-        color="rgba(75, 192, 192, 0.6)"
-      />
-
-      <HomeChart
-        title="Общая сумма продаж"
-        :labels="groupedByDate.map((item) => item.date)"
-        :values="groupedByDate.map((item) => item.totalRevenue.toFixed(2))"
-        :topChanges="getTopChangesByField('totalRevenue')"
-        color="rgba(54, 162, 235, 0.6)"
-      />
-
-      <HomeChart
-        title="Количество отмен"
-        :labels="groupedByDate.map((item) => item.date)"
-        :values="groupedByDate.map((item) => item.cancelCount)"
-        :topChanges="getTopChangesByField('cancelCount')"
-        color="rgba(255, 99, 132, 0.6)"
-      />
-
-      <HomeChart
-        title="Средний % скидки"
-        :labels="groupedByDate.map((item) => item.date)"
-        :values="
-          groupedByDate.map((item) =>
-            item.discountCount
-              ? (item.discountSum / item.discountCount).toFixed(2)
-              : 0
-          )
-        "
-        :topChanges="getTopChangesByField('discountSum')"
-        color="rgba(255, 206, 86, 0.6)"
-      />
-    </div>
-    <div v-else-if="!loading && !error" class="text-xl text-center p-2">
-      Нет данных
-    </div>
     <div v-if="lastPage > 1" class="text-center p-2">
       <button
         :disabled="currentPage === 1"
@@ -267,6 +250,72 @@ function goToPage(page) {
       >
         Вперёд
       </button>
+    </div>
+
+    <div
+      v-if="groupedByPeriod.length"
+      class="grid grid-cols-1 md:grid-cols-2 gap-8"
+    >
+      <HomeChart
+        title="Количество продаж"
+        :labels="groupedByPeriod.map((item) => item.period)"
+        :values="groupedByPeriod.map((item) => item.totalSales)"
+        :topChanges="getTopChangesByField('totalSales')"
+        color="rgba(75, 192, 192, 0.6)"
+        :comparePeriod="comparePeriod"
+        :dateFrom="filters.dateFrom"
+        :dateTo="filters.dateTo"
+        :page="currentPage"
+        :clickable="true"
+      />
+
+      <HomeChart
+        title="Общая сумма продаж"
+        :labels="groupedByPeriod.map((item) => item.period)"
+        :values="groupedByPeriod.map((item) => item.totalRevenue.toFixed(2))"
+        :topChanges="getTopChangesByField('totalRevenue')"
+        color="rgba(54, 162, 235, 0.6)"
+        :comparePeriod="comparePeriod"
+        :dateFrom="filters.dateFrom"
+        :dateTo="filters.dateTo"
+        :page="currentPage"
+        :clickable="true"
+      />
+
+      <HomeChart
+        title="Количество отмен"
+        :labels="groupedByPeriod.map((item) => item.period)"
+        :values="groupedByPeriod.map((item) => item.cancelCount)"
+        :topChanges="getTopChangesByField('cancelCount')"
+        color="rgba(255, 99, 132, 0.6)"
+        :comparePeriod="comparePeriod"
+        :dateFrom="filters.dateFrom"
+        :dateTo="filters.dateTo"
+        :page="currentPage"
+        :clickable="true"
+      />
+
+      <HomeChart
+        title="Средний % скидки"
+        :labels="groupedByPeriod.map((item) => item.period)"
+        :values="
+          groupedByPeriod.map((item) =>
+            item.discountCount
+              ? (item.discountSum / item.discountCount).toFixed(2)
+              : 0
+          )
+        "
+        :topChanges="getTopChangesByField('discountSum')"
+        color="rgba(255, 206, 86, 0.6)"
+        :comparePeriod="comparePeriod"
+        :dateFrom="filters.dateFrom"
+        :dateTo="filters.dateTo"
+        :page="currentPage"
+        :clickable="true"
+      />
+    </div>
+    <div v-else-if="!loading && !error" class="text-xl text-center p-2">
+      Нет данных
     </div>
   </div>
 </template>
