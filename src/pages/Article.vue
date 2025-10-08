@@ -35,17 +35,19 @@ watch(
 
 function getPeriodKey(dateStr, period) {
   const date = new Date(dateStr);
-  if (period === "day") {
-    return dateStr.slice(0, 10);
-  } else if (period === "week") {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear = (date - firstDayOfYear) / (24 * 60 * 60 * 1000);
-    const weekNumber = Math.ceil(
-      (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
-    );
-    return `${date.getFullYear()}-Неделя ${weekNumber}`;
-  } else if (period === "month") {
-    return dateStr.slice(0, 7);
+  switch (period) {
+    case "day":
+      return dateStr.slice(0, 10);
+    case "week":
+      const start = new Date(date.getFullYear(), 0, 1);
+      const week = Math.ceil(
+        ((date - start) / 86400000 + start.getDay() + 1) / 7
+      );
+      return `${date.getFullYear()}-Неделя ${week}`;
+    case "month":
+      return dateStr.slice(0, 7);
+    default:
+      return dateStr.slice(0, 10);
   }
 }
 

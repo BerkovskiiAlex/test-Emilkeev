@@ -50,6 +50,8 @@ const props = defineProps({
   },
 });
 
+console.log("topChanges:", props.topChanges);
+
 function handleClick() {
   router.push({
     name: "details",

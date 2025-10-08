@@ -47,7 +47,7 @@ onMounted(() => {
     route.query.comparePeriod || filters.value.comparePeriod || "day";
   const initialNmId = route.query.nmId || filters.value.nmId || "";
   const initialPage = Number(route.query.page) || 1;
-  selectedPeriodIndex.value = Number(route.query.selectedPeriod) || 1;
+  selectedPeriodIndex.value = Number(route.query.selectedPeriod) || 0;
   compareToIndex.value = Number(route.query.compareTo) || 0;
 
   filtersStore.setFilters({
@@ -58,6 +58,12 @@ onMounted(() => {
   });
 
   loadData(initialPage);
+});
+
+watch(data, (newData) => {
+  console.log("Данные загружены", newData);
+  console.log("groupedByPeriod", groupedByPeriod.value);
+  console.log("allPeriods", allPeriods.value);
 });
 
 watch([selectedPeriodIndex, compareToIndex], () => {
@@ -83,8 +89,8 @@ watch(
       nmId: newQuery.nmId || filters.value.nmId,
     });
 
-    selectedPeriodIndex.value = Number(newQuery.selectedPeriod) || 1;
-    compareToIndex.value = Number(newQuery.compareTo) || 0;
+    selectedPeriodIndex.value = Number(route.query.selectedPeriod) || 0;
+    compareToIndex.value = Number(route.query.compareTo) || 0;
 
     loadData(newPage);
   }
@@ -116,17 +122,19 @@ watch(currentPage, (val) => {
 
 function getPeriodKey(dateStr, period) {
   const date = new Date(dateStr);
-  if (period === "day") {
-    return dateStr.slice(0, 10);
-  } else if (period === "week") {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear = (date - firstDayOfYear) / (24 * 60 * 60 * 1000);
-    const weekNumber = Math.ceil(
-      (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
-    );
-    return `${date.getFullYear()}-Неделя ${weekNumber}`;
-  } else if (period === "month") {
-    return dateStr.slice(0, 7);
+  switch (period) {
+    case "day":
+      return dateStr.slice(0, 10);
+    case "week":
+      const start = new Date(date.getFullYear(), 0, 1);
+      const week = Math.ceil(
+        ((date - start) / 86400000 + start.getDay() + 1) / 7
+      );
+      return `${date.getFullYear()}-Неделя ${week}`;
+    case "month":
+      return dateStr.slice(0, 7);
+    default:
+      return dateStr.slice(0, 10);
   }
 }
 
