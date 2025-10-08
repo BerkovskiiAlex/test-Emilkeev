@@ -110,6 +110,10 @@ watch(
   }
 );
 
+watch(currentPage, (val) => {
+  inputPage.value = val;
+});
+
 function getPeriodKey(dateStr, period) {
   const date = new Date(dateStr);
   if (period === "day") {
@@ -300,7 +304,7 @@ function goToPage(page) {
       </label>
       <button
         @click="resetFilters"
-        class="self-end px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+        class="self-end px-4 py-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition"
       >
         Сбросить фильтры
       </button>

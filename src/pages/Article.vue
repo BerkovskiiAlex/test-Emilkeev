@@ -55,6 +55,14 @@ const articleOrders = computed(
     []
 );
 
+const uniqueWarehouses = computed(() => [
+  ...new Set(articleOrders.value.map((o) => o.warehouse_name)),
+]);
+
+const uniqueRegions = computed(() => [
+  ...new Set(articleOrders.value.map((o) => o.oblast)),
+]);
+
 const articleInfo = computed(() => articleOrders.value[0] || {});
 
 const periods = computed(() => {
@@ -114,12 +122,20 @@ const statsByPeriod = computed(() => {
       <p><strong>Штрихкод:</strong> {{ articleInfo.barcode || "—" }}</p>
       <p><strong>Бренд:</strong> {{ articleInfo.brand || "—" }}</p>
       <p><strong>Категория:</strong> {{ articleInfo.category || "—" }}</p>
-      <p><strong>Склад:</strong> {{ articleInfo.warehouse_name || "—" }}</p>
-      <p><strong>Регион:</strong> {{ articleInfo.oblast || "—" }}</p>
+      <p>
+        <strong>Склады:</strong>
+        {{ uniqueWarehouses.length ? uniqueWarehouses.join(", ") : "—" }}
+      </p>
+      <p>
+        <strong>Регионы:</strong>
+        {{ uniqueRegions.length ? uniqueRegions.join(", ") : "—" }}
+      </p>
     </div>
 
     <div class="w-2/3 bg-white rounded shadow p-4 overflow-auto">
-      <h2 class="text-xl font-semibold mb-4">Показатели по периодам</h2>
+      <h2 class="text-xl font-semibold mb-4">
+        Показатели по периодам. Страница {{ page }}
+      </h2>
       <table class="w-full border text-sm">
         <thead>
           <tr class="bg-gray-100">

@@ -200,12 +200,18 @@ const filteredOrders = computed(() => {
 
 <template>
   <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Детальный просмотр: {{ type }}</h1>
-    <p class="mb-6">
+    <h1 class="text-center text-2xl font-bold mb-4">
+      Детальный просмотр: {{ type }}
+    </h1>
+    <p class="text-center mb-6">
       Период:
-      <span v-if="comparePeriod === 'day'">день</span>
-      <span v-else-if="comparePeriod === 'week'">неделя в году</span>
-      <span v-else-if="comparePeriod === 'month'">месяц</span>
+      <span v-if="comparePeriod === 'day'">день. Страница {{ page }}</span>
+      <span v-else-if="comparePeriod === 'week'"
+        >неделя в году. Страница {{ page }}</span
+      >
+      <span v-else-if="comparePeriod === 'month'"
+        >месяц. Страница {{ page }}</span
+      >
       <span v-else>—</span>
     </p>
 
@@ -214,7 +220,7 @@ const filteredOrders = computed(() => {
       Ошибка: {{ error.message }}
     </div>
 
-    <div class="flex flex-wrap gap-4 mb-6">
+    <div class="flex flex-wrap justify-center gap-4 mb-6">
       <label class="flex flex-col w-40">
         Артикул:
         <input
@@ -224,7 +230,6 @@ const filteredOrders = computed(() => {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-
       <label class="flex flex-col w-40">
         Регион:
         <input
@@ -234,7 +239,6 @@ const filteredOrders = computed(() => {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-
       <label class="flex flex-col w-40">
         Категория:
         <input
@@ -244,7 +248,6 @@ const filteredOrders = computed(() => {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-
       <label class="flex flex-col w-40">
         Бренд:
         <input
@@ -254,12 +257,11 @@ const filteredOrders = computed(() => {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-
       <label class="flex flex-col w-40">
         Дата:
         <select
           v-model="filters.selectedDate"
-          class="border border-gray-300 rounded px-2 py-1"
+          class="border border-gray-300 rounded px-2 py-1.5"
         >
           <option value="">Все</option>
           <option v-for="date in availableDates" :key="date" :value="date">
@@ -269,7 +271,7 @@ const filteredOrders = computed(() => {
       </label>
       <button
         @click="resetFilters"
-        class="self-end px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+        class="self-end px-4 py-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition"
       >
         Сбросить фильтры
       </button>
@@ -292,7 +294,9 @@ const filteredOrders = computed(() => {
       />
 
       <div class="mt-10">
-        <h2 class="text-xl font-semibold mb-4">Детальные заказы</h2>
+        <h2 class="text-xl font-semibold mb-4">
+          Детальные заказы (Количество: {{ filteredOrders.length }})
+        </h2>
         <table class="w-full border border-gray-300 text-left text-sm">
           <thead>
             <tr class="bg-gray-100">

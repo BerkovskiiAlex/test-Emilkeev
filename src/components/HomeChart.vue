@@ -97,7 +97,8 @@ function handleClick() {
     />
 
     <div v-if="topChanges.length" class="mt-6">
-      <h3 class="font-medium mb-2">Топ изменений</h3>
+      <h3 class="font-medium mb-2">Топ {{ topChanges.length }} изменений</h3>
+
       <table class="w-full text-sm border">
         <thead>
           <tr class="bg-gray-100 text-left">
