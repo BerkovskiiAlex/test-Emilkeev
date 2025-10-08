@@ -222,6 +222,18 @@ const filteredOrders = computed(() => {
 
     <div class="flex flex-wrap justify-center gap-4 mb-6">
       <label class="flex flex-col w-40">
+        Дата:
+        <select
+          v-model="filters.selectedDate"
+          class="border border-gray-300 rounded px-2 py-1.5"
+        >
+          <option value="">Все</option>
+          <option v-for="date in availableDates" :key="date" :value="date">
+            {{ date }}
+          </option>
+        </select>
+      </label>
+      <label class="flex flex-col w-40">
         Артикул:
         <input
           type="text"
@@ -256,18 +268,6 @@ const filteredOrders = computed(() => {
           placeholder="Введите бренд"
           class="border border-gray-300 rounded px-2 py-1"
         />
-      </label>
-      <label class="flex flex-col w-40">
-        Дата:
-        <select
-          v-model="filters.selectedDate"
-          class="border border-gray-300 rounded px-2 py-1.5"
-        >
-          <option value="">Все</option>
-          <option v-for="date in availableDates" :key="date" :value="date">
-            {{ date }}
-          </option>
-        </select>
       </label>
       <button
         @click="resetFilters"
@@ -316,7 +316,23 @@ const filteredOrders = computed(() => {
               :key="item.g_number + '-' + index"
             >
               <td class="p-2 border">{{ item.date?.slice(0, 10) }}</td>
-              <td class="p-2 border">{{ item.nm_id }}</td>
+              <td class="p-2 border">
+                <router-link
+                  :to="{
+                    name: 'ArticlePage',
+                    params: { nmId: item.nm_id },
+                    query: {
+                      comparePeriod,
+                      dateFrom,
+                      dateTo,
+                      page,
+                    },
+                  }"
+                  class="text-blue-600 hover:underline"
+                >
+                  {{ item.nm_id }}
+                </router-link>
+              </td>
               <td class="p-2 border">{{ item.oblast }}</td>
               <td class="p-2 border">{{ item.category }}</td>
               <td class="p-2 border">{{ item.brand }}</td>
