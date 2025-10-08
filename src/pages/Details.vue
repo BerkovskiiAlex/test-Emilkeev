@@ -5,6 +5,8 @@ import { ref, computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useApi } from "../composables/useApi";
 import HomeChart from "../components/HomeChart.vue";
+import { storeToRefs } from "pinia";
+import { useFiltersStore } from "../stores/filtersStore";
 
 const route = useRoute();
 const type = ref(route.query.type);
@@ -13,17 +15,12 @@ const dateFrom = ref(route.query.dateFrom);
 const dateTo = ref(route.query.dateTo);
 const color = ref(route.query.color || "rgba(75, 192, 192, 0.6)");
 const page = ref(Number(route.query.page || 1));
+const filtersStore = useFiltersStore();
+const { resetFilters } = filtersStore;
+const { filters } = storeToRefs(filtersStore);
 
 const endpoint = "orders";
 const { data, loading, error, fetchData } = useApi(endpoint);
-
-const filters = ref({
-  selectedDate: "",
-  nm_id: "",
-  oblast: "",
-  category: "",
-  brand: "",
-});
 
 function loadData() {
   if (!dateFrom.value || !dateTo.value) return;
@@ -42,10 +39,22 @@ watch(
     dateFrom.value = query.dateFrom;
     dateTo.value = query.dateTo;
     page.value = Number(query.page || 1);
+    if (query.nm_id) {
+      filtersStore.setFilters({ nm_id: query.nm_id });
+    }
     loadData();
   },
   { immediate: true }
 );
+
+onMounted(() => {
+  const passedNmId = route.query.nm_id;
+  if (passedNmId) {
+    filtersStore.setFilters({
+      nm_id: passedNmId,
+    });
+  }
+});
 
 function getPeriodKey(dateStr, period) {
   const date = new Date(dateStr);
@@ -57,7 +66,7 @@ function getPeriodKey(dateStr, period) {
     const weekNumber = Math.ceil(
       (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
     );
-    return `${date.getFullYear()}-W${weekNumber}`;
+    return `${date.getFullYear()}-Неделя ${weekNumber}`;
   } else if (period === "month") {
     return dateStr.slice(0, 7);
   }
@@ -75,9 +84,9 @@ const availableDates = computed(() => {
 
 const groupedByPeriod = computed(() => {
   const result = {};
-  if (!data.value?.data) return [];
+  if (!filteredOrders.value.length) return [];
 
-  for (const order of data.value.data) {
+  for (const order of filteredOrders.value) {
     const periodKey = getPeriodKey(order.date, comparePeriod.value);
     const nmId = order.nm_id;
 
@@ -192,13 +201,77 @@ const filteredOrders = computed(() => {
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">Детальный просмотр: {{ type }}</h1>
     <p class="mb-6">
-      Период: {{ comparePeriod }}<br />
-      С: {{ dateFrom }} по {{ dateTo }}
+      Период сравнения:
+      <span v-if="comparePeriod === 'day'">День</span>
+      <span v-else-if="comparePeriod === 'week'">Неделя в году</span>
+      <span v-else-if="comparePeriod === 'month'">Месяц</span>
+      <span v-else>—</span>
     </p>
 
     <div v-if="loading" class="text-center">Загрузка данных...</div>
     <div v-if="error" class="text-red-600 text-center">
       Ошибка: {{ error.message }}
+    </div>
+
+    <div class="flex flex-wrap gap-4 mb-6">
+      <label class="flex flex-col w-40">
+        Артикул:
+        <input
+          type="text"
+          v-model="filters.nm_id"
+          placeholder="Введите артикул"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
+      </label>
+
+      <label class="flex flex-col w-40">
+        Регион:
+        <input
+          type="text"
+          v-model="filters.oblast"
+          placeholder="Введите регион"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
+      </label>
+
+      <label class="flex flex-col w-40">
+        Категория:
+        <input
+          type="text"
+          v-model="filters.category"
+          placeholder="Введите категорию"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
+      </label>
+
+      <label class="flex flex-col w-40">
+        Бренд:
+        <input
+          type="text"
+          v-model="filters.brand"
+          placeholder="Введите бренд"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
+      </label>
+
+      <label class="flex flex-col w-40">
+        Дата:
+        <select
+          v-model="filters.selectedDate"
+          class="border border-gray-300 rounded px-2 py-1"
+        >
+          <option value="">Все</option>
+          <option v-for="date in availableDates" :key="date" :value="date">
+            {{ date }}
+          </option>
+        </select>
+      </label>
+      <button
+        @click="resetFilters"
+        class="self-end px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+      >
+        Сбросить фильтры
+      </button>
     </div>
 
     <div v-if="!loading && !error && groupedByPeriod.length">
@@ -210,60 +283,6 @@ const filteredOrders = computed(() => {
         :topChanges="[]"
         :clickable="false"
       />
-      <div class="flex flex-wrap gap-4 mb-6">
-        <label class="flex flex-col w-40">
-          Артикул:
-          <input
-            type="text"
-            v-model="filters.nm_id"
-            placeholder="Введите артикул"
-            class="border border-gray-300 rounded px-2 py-1"
-          />
-        </label>
-
-        <label class="flex flex-col w-40">
-          Регион:
-          <input
-            type="text"
-            v-model="filters.oblast"
-            placeholder="Введите регион"
-            class="border border-gray-300 rounded px-2 py-1"
-          />
-        </label>
-
-        <label class="flex flex-col w-40">
-          Категория:
-          <input
-            type="text"
-            v-model="filters.category"
-            placeholder="Введите категорию"
-            class="border border-gray-300 rounded px-2 py-1"
-          />
-        </label>
-
-        <label class="flex flex-col w-40">
-          Бренд:
-          <input
-            type="text"
-            v-model="filters.brand"
-            placeholder="Введите бренд"
-            class="border border-gray-300 rounded px-2 py-1"
-          />
-        </label>
-
-        <label class="flex flex-col w-40">
-          Дата:
-          <select
-            v-model="filters.selectedDate"
-            class="border border-gray-300 rounded px-2 py-1"
-          >
-            <option value="">Все</option>
-            <option v-for="date in availableDates" :key="date" :value="date">
-              {{ date }}
-            </option>
-          </select>
-        </label>
-      </div>
 
       <div class="mt-10">
         <h2 class="text-xl font-semibold mb-4">Детальные заказы</h2>

@@ -4,19 +4,17 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { useApi } from "../composables/useApi";
 import HomeChart from "../components/HomeChart.vue";
+import { storeToRefs } from "pinia";
+import { useFiltersStore } from "../stores/filtersStore";
 
 const endpoint = "orders";
 const { data, loading, error, fetchData } = useApi(endpoint);
 
-const filters = ref({
-  dateFrom: "",
-  dateTo: "",
-});
-
 const currentPage = ref(1);
 const lastPage = ref(1);
-
-const comparePeriod = ref("day");
+const filtersStore = useFiltersStore();
+const { resetFilters } = filtersStore;
+const { filters } = storeToRefs(filtersStore);
 
 function loadData(page = 1) {
   currentPage.value = page;
@@ -35,13 +33,19 @@ function loadData(page = 1) {
 
 onMounted(() => {
   const today = new Date().toISOString().slice(0, 10);
-  filters.value.dateFrom = "2024-01-01";
-  filters.value.dateTo = today;
+
+  if (!filters.value.dateFrom || !filters.value.dateTo) {
+    filtersStore.setFilters({
+      dateFrom: "2024-01-01",
+      dateTo: today,
+    });
+  }
+
   loadData(1);
 });
 
 watch(
-  () => [filters.value.dateFrom, filters.value.dateTo],
+  () => [filters.value.dateFrom, filters.value.dateTo, filters.value.nmId],
   () => {
     loadData(1);
   }
@@ -57,7 +61,7 @@ function getPeriodKey(dateStr, period) {
     const weekNumber = Math.ceil(
       (pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7
     );
-    return `${date.getFullYear()}-W${weekNumber}`;
+    return `${date.getFullYear()}-Неделя ${weekNumber}`;
   } else if (period === "month") {
     return dateStr.slice(0, 7);
   }
@@ -67,8 +71,11 @@ const groupedByPeriod = computed(() => {
   const result = {};
   if (!data.value?.data) return [];
 
+  const filterNmId = filters.value.nmId?.trim();
+
   for (const order of data.value.data) {
-    const periodKey = getPeriodKey(order.date, comparePeriod.value);
+    if (filterNmId && String(order.nm_id) !== filterNmId) continue;
+    const periodKey = getPeriodKey(order.date, filters.value.comparePeriod);
     const nmId = order.nm_id;
 
     if (!result[periodKey]) {
@@ -140,16 +147,32 @@ const getTopChangesByField = (field) => {
   const changes = [];
 
   for (const id of allIds) {
-    const curr = currentArticles[id]?.[field] || 0;
-    const prev = previousArticles[id]?.[field] || 0;
+    let curr = 0;
+    let prev = 0;
+
+    if (field === "averageDiscount") {
+      const currArticle = currentArticles[id] || {};
+      const prevArticle = previousArticles[id] || {};
+      curr =
+        currArticle.discountCount > 0
+          ? currArticle.discountSum / currArticle.discountCount
+          : 0;
+      prev =
+        prevArticle.discountCount > 0
+          ? prevArticle.discountSum / prevArticle.discountCount
+          : 0;
+    } else {
+      curr = currentArticles[id]?.[field] || 0;
+      prev = previousArticles[id]?.[field] || 0;
+    }
 
     const diffPercent =
       prev === 0 ? (curr === 0 ? 0 : 100) : ((curr - prev) / prev) * 100;
 
     changes.push({
       nm_id: id,
-      current: curr,
-      previous: prev,
+      current: +curr.toFixed(2),
+      previous: +prev.toFixed(2),
       change: diffPercent,
     });
   }
@@ -190,18 +213,32 @@ function goToPage(page) {
           class="border border-gray-300 rounded px-2 py-1"
         />
       </label>
-
       <label class="flex flex-col w-48">
         Период сравнения:
         <select
-          v-model="comparePeriod"
+          v-model="filters.comparePeriod"
           class="border border-gray-300 rounded px-2 py-1"
         >
           <option value="day">День</option>
-          <option value="week">Неделя</option>
+          <option value="week">Неделя в году</option>
           <option value="month">Месяц</option>
         </select>
       </label>
+      <label class="flex flex-col w-40">
+        Артикул:
+        <input
+          type="text"
+          v-model="filters.nmId"
+          placeholder="Введите артикул"
+          class="border border-gray-300 rounded px-2 py-1"
+        />
+      </label>
+      <button
+        @click="resetFilters"
+        class="self-end px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
+      >
+        Сбросить фильтры
+      </button>
     </div>
 
     <div
@@ -262,11 +299,12 @@ function goToPage(page) {
         :values="groupedByPeriod.map((item) => item.totalSales)"
         :topChanges="getTopChangesByField('totalSales')"
         color="rgba(75, 192, 192, 0.6)"
-        :comparePeriod="comparePeriod"
+        :comparePeriod="filters.comparePeriod"
         :dateFrom="filters.dateFrom"
         :dateTo="filters.dateTo"
         :page="currentPage"
         :clickable="true"
+        :nmId="filters.nmId"
       />
 
       <HomeChart
@@ -275,11 +313,12 @@ function goToPage(page) {
         :values="groupedByPeriod.map((item) => item.totalRevenue.toFixed(2))"
         :topChanges="getTopChangesByField('totalRevenue')"
         color="rgba(54, 162, 235, 0.6)"
-        :comparePeriod="comparePeriod"
+        :comparePeriod="filters.comparePeriod"
         :dateFrom="filters.dateFrom"
         :dateTo="filters.dateTo"
         :page="currentPage"
         :clickable="true"
+        :nmId="filters.nmId"
       />
 
       <HomeChart
@@ -288,11 +327,12 @@ function goToPage(page) {
         :values="groupedByPeriod.map((item) => item.cancelCount)"
         :topChanges="getTopChangesByField('cancelCount')"
         color="rgba(255, 99, 132, 0.6)"
-        :comparePeriod="comparePeriod"
+        :comparePeriod="filters.comparePeriod"
         :dateFrom="filters.dateFrom"
         :dateTo="filters.dateTo"
         :page="currentPage"
         :clickable="true"
+        :nmId="filters.nmId"
       />
 
       <HomeChart
@@ -305,13 +345,14 @@ function goToPage(page) {
               : 0
           )
         "
-        :topChanges="getTopChangesByField('discountSum')"
+        :topChanges="getTopChangesByField('averageDiscount')"
         color="rgba(255, 206, 86, 0.6)"
-        :comparePeriod="comparePeriod"
+        :comparePeriod="filters.comparePeriod"
         :dateFrom="filters.dateFrom"
         :dateTo="filters.dateTo"
         :page="currentPage"
         :clickable="true"
+        :nmId="filters.nmId"
       />
     </div>
     <div v-else-if="!loading && !error" class="text-xl text-center p-2">

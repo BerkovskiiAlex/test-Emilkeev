@@ -44,6 +44,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  nmId: {
+    type: [String, Number],
+    default: null,
+  },
 });
 
 function handleClick() {
@@ -56,6 +60,7 @@ function handleClick() {
       dateTo: props.dateTo,
       color: props.color,
       page: props.page || 1,
+      nm_id: props.nmId,
     },
   });
 }
@@ -104,7 +109,23 @@ function handleClick() {
         </thead>
         <tbody>
           <tr v-for="item in topChanges" :key="item.nm_id">
-            <td class="p-2 border">{{ item.nm_id }}</td>
+            <td class="p-2 border">
+              <router-link
+                :to="{
+                  name: 'ArticlePage',
+                  params: { nmId: item.nm_id },
+                  query: {
+                    comparePeriod,
+                    dateFrom,
+                    dateTo,
+                    page,
+                  },
+                }"
+                class="text-blue-600 hover:underline"
+              >
+                {{ item.nm_id }}
+              </router-link>
+            </td>
             <td class="p-2 border">{{ item.current }}</td>
             <td class="p-2 border">{{ item.previous }}</td>
             <td class="p-2 border">
