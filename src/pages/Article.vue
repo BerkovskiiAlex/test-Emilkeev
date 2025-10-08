@@ -106,7 +106,7 @@ const statsByPeriod = computed(() => {
 </script>
 
 <template>
-  <div class="flex p-6 gap-6">
+  <div class="flex p-6 gap-6 items-start">
     <div class="w-1/3 bg-white rounded shadow p-4">
       <div class="mb-4">
         <img
