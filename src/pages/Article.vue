@@ -2,11 +2,12 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useApi } from "../composables/useApi";
 import { useFiltersStore } from "../stores/filtersStore";
 
 const route = useRoute();
+const router = useRouter();
 const filtersStore = useFiltersStore();
 const { filters } = filtersStore;
 
@@ -162,6 +163,12 @@ const statsByPeriod = computed(() => {
           </tr>
         </tbody>
       </table>
+      <button
+        @click="router.back()"
+        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+      >
+        ← Вернуться назад
+      </button>
     </div>
   </div>
 </template>

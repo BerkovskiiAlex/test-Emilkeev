@@ -6,15 +6,21 @@ import { useApi } from "../composables/useApi";
 import HomeChart from "../components/HomeChart.vue";
 import { storeToRefs } from "pinia";
 import { useFiltersStore } from "../stores/filtersStore";
+import { useRouter, useRoute } from "vue-router";
 
 const endpoint = "orders";
 const { data, loading, error, fetchData } = useApi(endpoint);
 
-const currentPage = ref(1);
-const lastPage = ref(1);
+const router = useRouter();
+const route = useRoute();
 const filtersStore = useFiltersStore();
 const { resetFilters } = filtersStore;
 const { filters } = storeToRefs(filtersStore);
+const currentPage = ref(1);
+const lastPage = ref(1);
+const selectedPeriodIndex = ref(1);
+const compareToIndex = ref(0);
+const inputPage = ref(currentPage.value);
 
 function loadData(page = 1) {
   currentPage.value = page;
@@ -34,20 +40,73 @@ function loadData(page = 1) {
 onMounted(() => {
   const today = new Date().toISOString().slice(0, 10);
 
-  if (!filters.value.dateFrom || !filters.value.dateTo) {
-    filtersStore.setFilters({
-      dateFrom: "2024-01-01",
-      dateTo: today,
-    });
-  }
+  const initialDateFrom =
+    route.query.dateFrom || filters.value.dateFrom || "2024-01-01";
+  const initialDateTo = route.query.dateTo || filters.value.dateTo || today;
+  const initialComparePeriod =
+    route.query.comparePeriod || filters.value.comparePeriod || "day";
+  const initialNmId = route.query.nmId || filters.value.nmId || "";
+  const initialPage = Number(route.query.page) || 1;
+  selectedPeriodIndex.value = Number(route.query.selectedPeriod) || 1;
+  compareToIndex.value = Number(route.query.compareTo) || 0;
 
-  loadData(1);
+  filtersStore.setFilters({
+    dateFrom: initialDateFrom,
+    dateTo: initialDateTo,
+    comparePeriod: initialComparePeriod,
+    nmId: initialNmId,
+  });
+
+  loadData(initialPage);
+});
+
+watch([selectedPeriodIndex, compareToIndex], () => {
+  router.replace({
+    query: {
+      ...route.query,
+      selectedPeriod: selectedPeriodIndex.value,
+      compareTo: compareToIndex.value,
+    },
+  });
 });
 
 watch(
-  () => [filters.value.dateFrom, filters.value.dateTo, filters.value.nmId],
+  () => route.query,
+  (newQuery) => {
+    const newPage = Number(newQuery.page) || 1;
+    inputPage.value = newPage;
+
+    filtersStore.setFilters({
+      dateFrom: newQuery.dateFrom || filters.value.dateFrom,
+      dateTo: newQuery.dateTo || filters.value.dateTo,
+      comparePeriod: newQuery.comparePeriod || filters.value.comparePeriod,
+      nmId: newQuery.nmId || filters.value.nmId,
+    });
+
+    selectedPeriodIndex.value = Number(newQuery.selectedPeriod) || 1;
+    compareToIndex.value = Number(newQuery.compareTo) || 0;
+
+    loadData(newPage);
+  }
+);
+
+watch(
+  () => [
+    filters.value.dateFrom,
+    filters.value.dateTo,
+    filters.value.comparePeriod,
+    filters.value.nmId,
+  ],
   () => {
-    loadData(1);
+    router.replace({
+      query: {
+        ...route.query,
+        dateFrom: filters.value.dateFrom,
+        dateTo: filters.value.dateTo,
+        comparePeriod: filters.value.comparePeriod,
+        nmId: filters.value.nmId,
+      },
+    });
   }
 );
 
@@ -123,9 +182,6 @@ const groupedByPeriod = computed(() => {
   return Object.values(result).sort((a, b) => a.period.localeCompare(b.period));
 });
 
-const selectedPeriodIndex = ref(1);
-const compareToIndex = ref(0);
-
 const allPeriods = computed(() =>
   groupedByPeriod.value.map((item) => item.period)
 );
@@ -181,8 +237,17 @@ const getTopChangesByField = (field) => {
 };
 
 function goToPage(page) {
+  if (!Number.isInteger(page) || page < 1 || page > lastPage.value) {
+    alert("Неверный номер страницы");
+    return;
+  }
   if (page >= 1 && page <= lastPage.value) {
-    loadData(page);
+    router.replace({
+      query: {
+        ...route.query,
+        page,
+      },
+    });
   }
 }
 </script>
@@ -271,22 +336,60 @@ function goToPage(page) {
       </div>
     </div>
 
-    <div v-if="lastPage > 1" class="text-center p-2">
+    <div
+      v-if="lastPage > 1"
+      class="text-center p-4 flex flex-wrap items-center justify-center gap-2"
+    >
+      <button
+        :disabled="currentPage <= 5"
+        @click="goToPage(currentPage - 5)"
+        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+      >
+        ← 5
+      </button>
+
       <button
         :disabled="currentPage === 1"
         @click="goToPage(currentPage - 1)"
-        class="px-2 py-1 mr-4 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
       >
-        Назад
+        ← 1
       </button>
+
       <span class="mx-2"> Страница {{ currentPage }} из {{ lastPage }} </span>
+
       <button
         :disabled="currentPage === lastPage"
         @click="goToPage(currentPage + 1)"
-        class="px-2 py-1 ml-4 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
       >
-        Вперёд
+        → 1
       </button>
+
+      <button
+        :disabled="currentPage + 5 > lastPage"
+        @click="goToPage(currentPage + 5)"
+        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+      >
+        → 5
+      </button>
+
+      <div class="flex items-center gap-2 ml-4">
+        <input
+          type="number"
+          min="1"
+          :max="lastPage"
+          v-model.number="inputPage"
+          class="w-20 px-2 py-1 border border-gray-300 rounded"
+          @keydown.enter="goToPage(inputPage)"
+        />
+        <button
+          @click="goToPage(inputPage)"
+          class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        >
+          Перейти
+        </button>
+      </div>
     </div>
 
     <div

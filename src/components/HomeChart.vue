@@ -103,7 +103,7 @@ function handleClick() {
           <tr class="bg-gray-100 text-left">
             <th class="p-2 border">Артикул</th>
             <th class="p-2 border">Текущий</th>
-            <th class="p-2 border">Предыдущий</th>
+            <th class="p-2 border">Сравнительный</th>
             <th class="p-2 border">Изменение</th>
           </tr>
         </thead>

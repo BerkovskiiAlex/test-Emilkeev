@@ -2,13 +2,14 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useApi } from "../composables/useApi";
 import HomeChart from "../components/HomeChart.vue";
 import { storeToRefs } from "pinia";
 import { useFiltersStore } from "../stores/filtersStore";
 
 const route = useRoute();
+const router = useRouter();
 const type = ref(route.query.type);
 const comparePeriod = ref(route.query.comparePeriod);
 const dateFrom = ref(route.query.dateFrom);
@@ -201,10 +202,10 @@ const filteredOrders = computed(() => {
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">Детальный просмотр: {{ type }}</h1>
     <p class="mb-6">
-      Период сравнения:
-      <span v-if="comparePeriod === 'day'">День</span>
-      <span v-else-if="comparePeriod === 'week'">Неделя в году</span>
-      <span v-else-if="comparePeriod === 'month'">Месяц</span>
+      Период:
+      <span v-if="comparePeriod === 'day'">день</span>
+      <span v-else-if="comparePeriod === 'week'">неделя в году</span>
+      <span v-else-if="comparePeriod === 'month'">месяц</span>
       <span v-else>—</span>
     </p>
 
@@ -271,6 +272,12 @@ const filteredOrders = computed(() => {
         class="self-end px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition"
       >
         Сбросить фильтры
+      </button>
+      <button
+        @click="router.back()"
+        class="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+      >
+        ← Вернуться назад
       </button>
     </div>
 
