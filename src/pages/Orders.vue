@@ -3,9 +3,13 @@
 import { ref, watch, onMounted, computed } from "vue";
 import { useApi } from "../composables/useApi";
 import OrdersChart from "../components/OrdersChart.vue";
+import { useRoute, useRouter } from "vue-router";
 
 const endpoint = "orders";
 const { data, loading, error, fetchData } = useApi(endpoint);
+
+const router = useRouter();
+const route = useRoute();
 
 const filters = ref({
   dateFrom: "",
@@ -20,12 +24,14 @@ const filters = ref({
   is_cancel: "",
 });
 
-const currentPage = ref(1);
 const itemsPerPage = ref(20);
 const lastPage = ref(1);
+const currentPage = ref(Number(route.query.page) || 1);
+const inputPage = ref(currentPage.value);
 
 function loadData(page = 1) {
   currentPage.value = page;
+  inputPage.value = page;
 
   fetchData({
     dateFrom: filters.value.dateFrom,
@@ -43,12 +49,23 @@ onMounted(() => {
   const today = new Date().toISOString().slice(0, 10);
   filters.value.dateFrom = "2024-01-01";
   filters.value.dateTo = today;
-  loadData(1);
+
+  const page = Number(route.query.page) || 1;
+  currentPage.value = page;
+  inputPage.value = page;
+
+  loadData(page);
 });
+
+let isInitialLoad = true;
 
 watch(
   () => [filters.value.dateFrom, filters.value.dateTo],
   () => {
+    if (isInitialLoad) {
+      isInitialLoad = false;
+      return;
+    }
     loadData(1);
   }
 );
@@ -56,6 +73,17 @@ watch(
 watch(itemsPerPage, () => {
   loadData(1);
 });
+
+watch(
+  () => route.query.page,
+  (newPage) => {
+    const page = Number(newPage) || 1;
+    if (page === currentPage.value) return;
+    currentPage.value = page;
+    inputPage.value = page;
+    loadData(page);
+  }
+);
 
 const filteredData = computed(() => {
   if (!data.value?.data) return [];
@@ -116,9 +144,17 @@ const filteredData = computed(() => {
 });
 
 function goToPage(page) {
-  if (page >= 1 && page <= lastPage.value) {
-    loadData(page);
+  if (!Number.isInteger(page) || page < 1 || page > lastPage.value) {
+    alert("Неверный номер страницы");
+    return;
   }
+
+  router.replace({
+    query: {
+      ...route.query,
+      page,
+    },
+  });
 }
 </script>
 
@@ -294,22 +330,60 @@ function goToPage(page) {
       Нет данных
     </div>
 
-    <div v-if="lastPage > 1" class="text-center p-2">
+    <div
+      v-if="lastPage > 1"
+      class="text-center p-4 flex flex-wrap items-center justify-center gap-2"
+    >
+      <button
+        :disabled="currentPage <= 5"
+        @click="goToPage(currentPage - 5)"
+        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+      >
+        ← 5
+      </button>
+
       <button
         :disabled="currentPage === 1"
         @click="goToPage(currentPage - 1)"
-        class="px-2 py-1 mr-4 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
       >
-        Назад
+        ← 1
       </button>
+
       <span class="mx-2"> Страница {{ currentPage }} из {{ lastPage }} </span>
+
       <button
         :disabled="currentPage === lastPage"
         @click="goToPage(currentPage + 1)"
-        class="px-2 py-1 ml-4 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed transition"
+        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
       >
-        Вперёд
+        → 1
       </button>
+
+      <button
+        :disabled="currentPage + 5 > lastPage"
+        @click="goToPage(currentPage + 5)"
+        class="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50"
+      >
+        → 5
+      </button>
+
+      <div class="flex items-center gap-2 ml-4">
+        <input
+          type="number"
+          min="1"
+          :max="lastPage"
+          v-model.number="inputPage"
+          class="w-20 px-2 py-1 border border-gray-300 rounded"
+          @keydown.enter="goToPage(inputPage)"
+        />
+        <button
+          @click="goToPage(inputPage)"
+          class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+        >
+          Перейти
+        </button>
+      </div>
     </div>
   </div>
   <div v-if="filteredData.length">
