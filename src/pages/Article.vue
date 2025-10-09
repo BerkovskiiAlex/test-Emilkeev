@@ -1,7 +1,7 @@
 <!-- @format -->
 
 <script setup>
-import { ref, computed, onMounted, watch } from "vue";
+import { computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { useApi } from "../composables/useApi";
 import { useFiltersStore } from "../stores/filtersStore";
@@ -13,10 +13,8 @@ const { filters } = filtersStore;
 
 const nmId = route.params.nmId;
 const endpoint = "orders";
-const { data, loading, error, fetchData } = useApi(endpoint);
+const { data, fetchData } = useApi(endpoint);
 
-const dateFrom = route.query.dateFrom || filters.dateFrom;
-const dateTo = route.query.dateTo || filters.dateTo;
 const comparePeriod = route.query.comparePeriod || filters.comparePeriod;
 const page = Number(route.query.page) || 1;
 
